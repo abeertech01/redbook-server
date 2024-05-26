@@ -30,4 +30,4 @@ const isEmail = (str: string) => {
   return emailPattern.test(str)
 }
 
-export { sendToken, isEmail }
+export { cookieOptions, sendToken, isEmail }

@@ -79,4 +79,12 @@ const loginUser = TryCatch(async (req, res, next) => {
   )
 })
 
-export { registerUser, loginUser }
+const logoutUser = TryCatch(async (req, res, next) => {
+  res.clearCookie("redbook-token")
+  res.status(200).json({
+    success: true,
+    message: "Logged out successfully!",
+  })
+})
+
+export { registerUser, loginUser, logoutUser }
