@@ -24,4 +24,10 @@ const sendToken = (
   })
 }
 
-export { sendToken }
+const isEmail = (str: string) => {
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+  return emailPattern.test(str)
+}
+
+export { sendToken, isEmail }
