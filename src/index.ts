@@ -5,6 +5,7 @@ import cors from "cors"
 import { errorMiddleware } from "./middlewares/error"
 
 import userRoutes from "./routes/user.route"
+import chatRoutes from "./routes/chat.route"
 
 dotenv.config({
   path: "./.env.local",
@@ -30,6 +31,7 @@ app.get("/", (req: Request, res: Response) => {
 
 // Routes
 app.use("/api/v1/auth", userRoutes)
+app.use("/api/v1/chat", chatRoutes)
 
 // error Middleware
 app.use(errorMiddleware)

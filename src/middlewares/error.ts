@@ -1,5 +1,5 @@
-import { NextFunction, Request, Response } from "express"
-import { CONTROLLER_FUNC } from "../utils/types"
+import { NextFunction, Response } from "express"
+import { CONTROLLER_FUNC, IRequest } from "../utils/types"
 
 interface IError extends Error {
   statusCode?: number
@@ -7,7 +7,7 @@ interface IError extends Error {
 
 const errorMiddleware = (
   err: IError,
-  req: Request,
+  req: IRequest,
   res: Response,
   next: NextFunction
 ) => {
@@ -23,7 +23,7 @@ const errorMiddleware = (
 
 const TryCatch =
   (controllerFunc: CONTROLLER_FUNC) =>
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: IRequest, res: Response, next: NextFunction) => {
     try {
       await controllerFunc(req, res, next)
     } catch (error: unknown) {

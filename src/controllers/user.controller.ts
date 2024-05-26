@@ -7,7 +7,7 @@ import { NextFunction, Request, Response } from "express"
 import { IRequest } from "../utils/types"
 
 const registerUser = TryCatch(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: IRequest, res: Response, next: NextFunction) => {
     const { name, username, email, password } = req.body
 
     const hashedPassword = await hash(password, 13)
@@ -48,7 +48,7 @@ const registerUser = TryCatch(
 )
 
 const loginUser = TryCatch(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: IRequest, res: Response, next: NextFunction) => {
     const { userAddress, password } = req.body
     let record
 
@@ -88,7 +88,7 @@ const loginUser = TryCatch(
 )
 
 const logoutUser = TryCatch(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: IRequest, res: Response, next: NextFunction) => {
     res.clearCookie("redbook-token")
     res.status(200).json({
       success: true,
@@ -105,7 +105,14 @@ const userProfile = TryCatch(
 
     res.status(200).json({
       success: true,
-      user,
+      user: {
+        id: user?.id,
+        name: user?.name,
+        username: user?.username,
+        email: user?.email,
+        createdAt: user?.createdAt,
+        updatedAt: user?.updatedAt,
+      },
     })
   }
 )

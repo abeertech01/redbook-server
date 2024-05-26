@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express"
+import { NextFunction, Response } from "express"
 import { ErrorHandler } from "../utils/utility"
 import { TryCatch } from "./error"
 import jwt, { JwtPayload } from "jsonwebtoken"
