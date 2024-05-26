@@ -3,6 +3,7 @@ import {
   loginUser,
   logoutUser,
   registerUser,
+  userProfile,
 } from "../controllers/user.controller"
 import {
   loginValidator,
@@ -21,5 +22,7 @@ router.post("/login", loginValidator(), validateHandler, loginUser)
 router.use(isAuthenticated)
 
 router.delete("/logout", logoutUser)
+
+router.get("/profile", userProfile)
 
 export default router

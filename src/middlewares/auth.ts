@@ -2,10 +2,7 @@ import { NextFunction, Request, Response } from "express"
 import { ErrorHandler } from "../utils/utility"
 import { TryCatch } from "./error"
 import jwt, { JwtPayload } from "jsonwebtoken"
-
-interface IRequest extends Request {
-  id?: string
-}
+import { IRequest } from "../utils/types"
 
 interface CustomJwtPayload extends JwtPayload {
   id: string
