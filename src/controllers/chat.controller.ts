@@ -3,10 +3,14 @@ import { TryCatch } from "../middlewares/error"
 import { IRequest } from "../utils/types"
 import prisma from "../lib/prismadb"
 import { ErrorHandler } from "../utils/utility"
+import { getAllChats } from "../lib/helpers"
 
 const createChat = TryCatch(
   async (req: IRequest, res: Response, next: NextFunction) => {
     const { participantIds } = req.body
+
+    if (participantIds[0] === req.id)
+      return next(new ErrorHandler("You can't chat with yourself!", 400))
 
     const record = await prisma.chat.findFirst({
       where: {
@@ -20,7 +24,7 @@ const createChat = TryCatch(
           {
             creatorId: participantIds[0],
             members: {
-              some: { id: req.id! },
+              some: { id: req.id as string },
             },
           },
         ],
@@ -37,11 +41,18 @@ const createChat = TryCatch(
         },
       },
       include: {
-        members: true,
+        members: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            email: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        },
       },
     })
-
-    console.log(createdChat)
 
     res.status(200).json({
       success: true,
@@ -52,23 +63,7 @@ const createChat = TryCatch(
 
 const getChats = TryCatch(
   async (req: IRequest, res: Response, next: NextFunction) => {
-    const chats = await prisma.chat.findMany({
-      where: {
-        OR: [
-          {
-            creatorId: req.id!,
-          },
-          {
-            members: {
-              some: { id: req.id! },
-            },
-          },
-        ],
-      },
-      include: {
-        members: true,
-      },
-    })
+    const chats = await getAllChats(prisma, req)
 
     res.status(200).json({
       success: true,

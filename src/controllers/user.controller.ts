@@ -5,6 +5,7 @@ import { compare, hash } from "bcrypt"
 import { ErrorHandler } from "../utils/utility"
 import { NextFunction, Request, Response } from "express"
 import { IRequest } from "../utils/types"
+import { getAllChats } from "../lib/helpers"
 
 const registerUser = TryCatch(
   async (req: IRequest, res: Response, next: NextFunction) => {
@@ -51,6 +52,9 @@ const loginUser = TryCatch(
   async (req: IRequest, res: Response, next: NextFunction) => {
     const { userAddress, password } = req.body
     let record
+
+    if (req.cookies["redbook-token"])
+      return next(new ErrorHandler("You are already logged in", 400))
 
     const isEmailAddress: boolean = isEmail(userAddress)
 
@@ -117,4 +121,38 @@ const userProfile = TryCatch(
   }
 )
 
-export { registerUser, loginUser, logoutUser, userProfile }
+const searchUser = TryCatch(
+  async (req: IRequest, res: Response, next: NextFunction) => {
+    const { name = "" } = req.query
+
+    const myChats = await getAllChats(prisma, req)
+
+    //  extracting All Users from my chats means friends or people I have chatted with
+    const allUsersFromMyChats = myChats.flatMap((chat) => chat.members)
+
+    // Finding all users except me and my friends
+    const allUsersExceptMeAndFriends = await prisma.user.findMany({
+      where: {
+        NOT: [...allUsersFromMyChats],
+        name: {
+          contains: name as string,
+          mode: "insensitive",
+        },
+      },
+    })
+
+    // Modifying the response
+    const users = allUsersExceptMeAndFriends.map((user) => ({
+      id: user.id,
+      name: user.name,
+      username: user.username,
+    }))
+
+    res.status(200).json({
+      success: true,
+      users,
+    })
+  }
+)
+
+export { registerUser, loginUser, logoutUser, userProfile, searchUser }

@@ -3,6 +3,7 @@ import {
   loginUser,
   logoutUser,
   registerUser,
+  searchUser,
   userProfile,
 } from "../controllers/user.controller"
 import {
@@ -24,5 +25,7 @@ router.use(isAuthenticated)
 router.delete("/logout", logoutUser)
 
 router.get("/profile", userProfile)
+
+router.get("/search", searchUser)
 
 export default router

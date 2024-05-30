@@ -30,7 +30,7 @@ app.get("/", (req: Request, res: Response) => {
 })
 
 // Routes
-app.use("/api/v1/auth", userRoutes)
+app.use("/api/v1/user", userRoutes)
 app.use("/api/v1/chat", chatRoutes)
 
 // error Middleware
