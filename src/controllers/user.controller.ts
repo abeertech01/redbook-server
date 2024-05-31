@@ -4,7 +4,7 @@ import { isEmail, sendToken } from "../utils/features"
 import { compare, hash } from "bcrypt"
 import { ErrorHandler } from "../utils/utility"
 import { NextFunction, Request, Response } from "express"
-import { IRequest } from "../utils/types"
+import { IRequest, SearchedUser, User } from "../utils/types"
 import { getAllChats } from "../lib/helpers"
 
 const registerUser = TryCatch(
@@ -127,30 +127,50 @@ const searchUser = TryCatch(
 
     const myChats = await getAllChats(prisma, req)
 
-    //  extracting All Users from my chats means friends or people I have chatted with
-    const allUsersFromMyChats = myChats.flatMap((chat) => chat.members)
+    let allUsers: SearchedUser[]
+    let allUsersFromMyChats: User[]
 
-    // Finding all users except me and my friends
-    const allUsersExceptMeAndFriends = await prisma.user.findMany({
+    //  extracting All Users from my chats means friends or people I have chatted with
+    if (myChats.length > 0) {
+      allUsersFromMyChats = myChats.flatMap((chat) => chat.members)
+
+      // Finding all users except me and my friends
+      allUsers = await prisma.user.findMany({
+        where: {
+          NOT: [...allUsersFromMyChats],
+          name: {
+            contains: name as string,
+            mode: "insensitive",
+          },
+        },
+        select: {
+          id: true,
+          name: true,
+          username: true,
+        },
+      })
+    }
+
+    allUsers = await prisma.user.findMany({
       where: {
-        NOT: [...allUsersFromMyChats],
+        NOT: {
+          id: req.id,
+        },
         name: {
           contains: name as string,
           mode: "insensitive",
         },
       },
+      select: {
+        id: true,
+        name: true,
+        username: true,
+      },
     })
-
-    // Modifying the response
-    const users = allUsersExceptMeAndFriends.map((user) => ({
-      id: user.id,
-      name: user.name,
-      username: user.username,
-    }))
 
     res.status(200).json({
       success: true,
-      users,
+      users: allUsers,
     })
   }
 )

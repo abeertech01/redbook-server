@@ -14,6 +14,12 @@ export interface User {
   updatedAt: Date
 }
 
+export interface SearchedUser {
+  id: string
+  name: string
+  username: string
+}
+
 export interface IRequest extends Request {
   id?: string
 }
