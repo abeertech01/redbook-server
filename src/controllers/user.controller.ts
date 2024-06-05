@@ -127,35 +127,23 @@ const searchUser = TryCatch(
 
     const myChats = await getAllChats(prisma, req)
 
-    let allUsers: SearchedUser[]
+    // let allUsers: SearchedUser[]
     let allUsersFromMyChats: User[]
 
     //  extracting All Users from my chats means friends or people I have chatted with
     if (myChats.length > 0) {
       allUsersFromMyChats = myChats.flatMap((chat) => chat.members)
-
-      // Finding all users except me and my friends
-      allUsers = await prisma.user.findMany({
-        where: {
-          NOT: [...allUsersFromMyChats],
-          name: {
-            contains: name as string,
-            mode: "insensitive",
-          },
-        },
-        select: {
-          id: true,
-          name: true,
-          username: true,
-        },
-      })
+      allUsersFromMyChats = allUsersFromMyChats.filter(
+        (user) => user.id !== req.id
+      )
+    } else {
+      allUsersFromMyChats = []
     }
 
-    allUsers = await prisma.user.findMany({
+    // Finding all users except me and my friends
+    const allUsers = await prisma.user.findMany({
       where: {
-        NOT: {
-          id: req.id,
-        },
+        NOT: [...allUsersFromMyChats, { id: req.id }],
         name: {
           contains: name as string,
           mode: "insensitive",

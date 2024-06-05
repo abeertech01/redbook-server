@@ -1,7 +1,7 @@
 import { NextFunction, Response } from "express"
 import { CONTROLLER_FUNC, IRequest } from "../utils/types"
 
-interface IError extends Error {
+export interface IError extends Error {
   statusCode?: number
 }
 

@@ -1,4 +1,4 @@
-import { CookieOptions, Response } from "express"
+import { CookieOptions, Request, Response } from "express"
 import jwt from "jsonwebtoken"
 import { User } from "./types"
 
