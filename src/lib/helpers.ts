@@ -1,6 +1,7 @@
 import { Prisma, PrismaClient } from "@prisma/client"
 import { DefaultArgs } from "@prisma/client/runtime/library"
-import { IRequest } from "../utils/types"
+import { IRequest, User } from "../utils/types"
+import { userSocketIDs } from ".."
 
 const getAllChats = async (
   prisma: PrismaClient<Prisma.PrismaClientOptions, never, DefaultArgs>,
@@ -36,4 +37,10 @@ const getAllChats = async (
   return myChats
 }
 
-export { getAllChats }
+const getSockets = (userIds: string[] = []) => {
+  const sockets = userIds.map((id: string) => userSocketIDs.get(id.toString()))
+
+  return sockets
+}
+
+export { getAllChats, getSockets }

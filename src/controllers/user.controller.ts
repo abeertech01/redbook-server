@@ -4,7 +4,7 @@ import { isEmail, sendToken } from "../utils/features"
 import { compare, hash } from "bcrypt"
 import { ErrorHandler } from "../utils/utility"
 import { NextFunction, Request, Response } from "express"
-import { IRequest } from "../utils/types"
+import { IRequest, SearchedUser, User } from "../utils/types"
 import { getAllChats } from "../lib/helpers"
 
 const registerUser = TryCatch(
@@ -127,30 +127,38 @@ const searchUser = TryCatch(
 
     const myChats = await getAllChats(prisma, req)
 
+    // let allUsers: SearchedUser[]
+    let allUsersFromMyChats: User[]
+
     //  extracting All Users from my chats means friends or people I have chatted with
-    const allUsersFromMyChats = myChats.flatMap((chat) => chat.members)
+    if (myChats.length > 0) {
+      allUsersFromMyChats = myChats.flatMap((chat) => chat.members)
+      allUsersFromMyChats = allUsersFromMyChats.filter(
+        (user) => user.id !== req.id
+      )
+    } else {
+      allUsersFromMyChats = []
+    }
 
     // Finding all users except me and my friends
-    const allUsersExceptMeAndFriends = await prisma.user.findMany({
+    const allUsers = await prisma.user.findMany({
       where: {
-        NOT: [...allUsersFromMyChats],
+        NOT: [...allUsersFromMyChats, { id: req.id }],
         name: {
           contains: name as string,
           mode: "insensitive",
         },
       },
+      select: {
+        id: true,
+        name: true,
+        username: true,
+      },
     })
-
-    // Modifying the response
-    const users = allUsersExceptMeAndFriends.map((user) => ({
-      id: user.id,
-      name: user.name,
-      username: user.username,
-    }))
 
     res.status(200).json({
       success: true,
-      users,
+      users: allUsers,
     })
   }
 )
