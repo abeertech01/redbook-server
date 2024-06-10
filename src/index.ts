@@ -10,7 +10,7 @@ import chatRoutes from "./routes/chat.route"
 import { Server, Socket } from "socket.io"
 import { corsOptions } from "./constants/config"
 import { User } from "./utils/types"
-import { NEW_CHAT } from "./constants/events"
+import { NEW_CHAT, NEW_MESSAGE } from "./constants/events"
 import { ExtendedSocket, socketAuthenticator } from "./middlewares/auth"
 import prisma from "./lib/prismadb"
 import { getSockets } from "./lib/helpers"
@@ -107,6 +107,33 @@ io.on("connection", (socket: ExtendedSocket) => {
       })
 
       io.to(chatterSocket).emit(NEW_CHAT, newChat)
+    } catch (error: any) {
+      throw new Error(error)
+    }
+  })
+
+  socket.on(NEW_MESSAGE, async ({ chatId, message: msg }) => {
+    try {
+      const newMessage = await prisma.message.create({
+        data: {
+          chatId: chatId as string,
+          authorId: socket.user?.id as string,
+          text: msg as string,
+        },
+      })
+
+      const theChat = await prisma.chat.findUnique({
+        where: { id: chatId as string },
+        include: {
+          members: true,
+        },
+      })
+
+      const chatterSocket = getSockets(
+        theChat?.members?.map((member) => member.id)
+      )
+
+      io.to(chatterSocket).emit(NEW_MESSAGE, { newMessage })
     } catch (error: any) {
       throw new Error(error)
     }

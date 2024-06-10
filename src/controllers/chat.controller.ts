@@ -22,4 +22,19 @@ const getChats = TryCatch(
   }
 )
 
-export { getChats }
+const getMessages = TryCatch(
+  async (req: IRequest, res: Response, next: NextFunction) => {
+    const messages = await prisma.message.findMany({
+      where: {
+        chatId: req.params.chatId,
+      },
+    })
+
+    res.status(200).json({
+      success: true,
+      messages,
+    })
+  }
+)
+
+export { getChats, getMessages }
