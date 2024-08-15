@@ -1,4 +1,4 @@
-import express, { Express, NextFunction, Request, Response } from "express"
+import express, { Express, Request, Response } from "express"
 import dotenv from "dotenv"
 import { createServer } from "http"
 import cookieParser from "cookie-parser"
@@ -7,9 +7,8 @@ import { errorMiddleware } from "./middlewares/error"
 
 import userRoutes from "./routes/user.route"
 import chatRoutes from "./routes/chat.route"
-import { Server, Socket } from "socket.io"
+import { Server } from "socket.io"
 import { corsOptions } from "./constants/config"
-import { User } from "./utils/types"
 import { NEW_CHAT, NEW_MESSAGE } from "./constants/events"
 import { ExtendedSocket, socketAuthenticator } from "./middlewares/auth"
 import prisma from "./lib/prismadb"
@@ -41,7 +40,7 @@ app.use("/api/v1/user", userRoutes)
 app.use("/api/v1/chat", chatRoutes)
 
 app.get("/", (req: Request, res: Response) => {
-  res.send("Express + TypeScript Server")
+  res.send("Express + TypeScript Server | Abeer")
 })
 
 io.use((socket, next) => {
