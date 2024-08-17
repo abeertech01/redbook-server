@@ -59,8 +59,13 @@ const deletePost = TryCatch(
   async (req: IRequest, res: Response, next: NextFunction) => {
     const { id } = req.params
 
+    /**
+     * FIXME: Later
+     * if I get post id and authorId by req.body, I will be able to create an error where it will give a message which is 'You are not allowed to remove this post'
+     */
+
     const post = await prisma.post.delete({
-      where: { id },
+      where: { authorId: req.id as string, id },
     })
 
     res.status(200).json({
