@@ -7,6 +7,7 @@ import { errorMiddleware } from "./middlewares/error"
 
 import userRoutes from "./routes/user.route"
 import chatRoutes from "./routes/chat.route"
+import postRoutes from "./routes/post.route"
 import { Server } from "socket.io"
 import { corsOptions } from "./constants/config"
 import { NEW_CHAT, NEW_MESSAGE } from "./constants/events"
@@ -38,6 +39,7 @@ app.use(cors(corsOptions))
 // Routes
 app.use("/api/v1/user", userRoutes)
 app.use("/api/v1/chat", chatRoutes)
+app.use("/api/v1/post", postRoutes)
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Express + TypeScript Server | Abeer")
