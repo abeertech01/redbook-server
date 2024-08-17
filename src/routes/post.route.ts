@@ -1,6 +1,7 @@
 import express from "express"
 import {
   createPost,
+  deletePost,
   getPosts,
   getUserPosts,
 } from "../controllers/post.controller"
@@ -15,5 +16,7 @@ router.post("/create-post", createPost)
 router.get("/all-posts", getPosts)
 
 router.get("/user-posts", getUserPosts)
+
+router.delete("/delete-post/:id", deletePost)
 
 export default router

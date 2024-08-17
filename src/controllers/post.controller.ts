@@ -55,4 +55,19 @@ const getUserPosts = TryCatch(
   }
 )
 
-export { createPost, getPosts, getUserPosts }
+const deletePost = TryCatch(
+  async (req: IRequest, res: Response, next: NextFunction) => {
+    const { id } = req.params
+
+    const post = await prisma.post.delete({
+      where: { id },
+    })
+
+    res.status(200).json({
+      success: true,
+      post,
+    })
+  }
+)
+
+export { createPost, getPosts, getUserPosts, deletePost }
