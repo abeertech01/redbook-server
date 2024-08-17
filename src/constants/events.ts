@@ -1,3 +1,4 @@
 const NEW_CHAT = "NEW_CHAT"
+const NEW_MESSAGE = "NEW_MESSAGE"
 
-export { NEW_CHAT }
+export { NEW_CHAT, NEW_MESSAGE }

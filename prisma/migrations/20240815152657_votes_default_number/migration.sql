@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "posts" ALTER COLUMN "upvote" SET DEFAULT 0,
+ALTER COLUMN "downvote" SET DEFAULT 0;
