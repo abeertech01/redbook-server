@@ -40,7 +40,7 @@ const getPosts = TryCatch(
 
 const getUserPosts = TryCatch(
   async (req: IRequest, res: Response, next: NextFunction) => {
-    const posts = await prisma.post.findMany({
+    const userPosts = await prisma.post.findMany({
       where: { authorId: req.id as string },
       orderBy: { createdAt: "desc" },
       include: {
@@ -50,7 +50,7 @@ const getUserPosts = TryCatch(
 
     res.status(200).json({
       success: true,
-      posts,
+      posts: userPosts,
     })
   }
 )
@@ -75,4 +75,93 @@ const deletePost = TryCatch(
   }
 )
 
-export { createPost, getPosts, getUserPosts, deletePost }
+const upvotePost = TryCatch(
+  async (req: IRequest, res: Response, next: NextFunction) => {
+    const { id: postId } = req.params
+
+    // get the post by matching the postId
+    const post = await prisma.post.findUnique({
+      where: { id: postId },
+    })
+
+    const upvoteIds = [...(post?.upvoteIds as string[])]
+    const downvoteIds = [...(post?.downvoteIds as string[])]
+    let updatedPost: typeof post | undefined
+
+    if (downvoteIds.includes(req.id as string)) {
+      downvoteIds.splice(downvoteIds.indexOf(req.id as string), 1)
+      upvoteIds.push(req.id as string)
+      updatedPost = await prisma.post.update({
+        where: { id: postId },
+        data: { upvoteIds, downvoteIds },
+      })
+    } else if (upvoteIds.includes(req.id as string)) {
+      upvoteIds.splice(upvoteIds.indexOf(req.id as string), 1)
+      updatedPost = await prisma.post.update({
+        where: { id: postId },
+        data: { upvoteIds },
+      })
+    } else {
+      upvoteIds.push(req.id as string)
+      updatedPost = await prisma.post.update({
+        where: { id: postId },
+        data: { upvoteIds },
+      })
+    }
+
+    res.status(200).json({
+      success: true,
+      post: updatedPost,
+    })
+  }
+)
+
+const downvotePost = TryCatch(
+  async (req: IRequest, res: Response, next: NextFunction) => {
+    const { id: postId } = req.params
+
+    // get the post by matching the postId
+    const post = await prisma.post.findUnique({
+      where: { id: postId },
+    })
+
+    const upvoteIds = [...(post?.upvoteIds as string[])]
+    const downvoteIds = [...(post?.downvoteIds as string[])]
+    let updatedPost: typeof post | undefined
+
+    if (upvoteIds.includes(req.id as string)) {
+      upvoteIds.splice(downvoteIds.indexOf(req.id as string), 1)
+      downvoteIds.push(req.id as string)
+      updatedPost = await prisma.post.update({
+        where: { id: postId },
+        data: { upvoteIds, downvoteIds },
+      })
+    } else if (downvoteIds.includes(req.id as string)) {
+      downvoteIds.splice(downvoteIds.indexOf(req.id as string), 1)
+      updatedPost = await prisma.post.update({
+        where: { id: postId },
+        data: { downvoteIds },
+      })
+    } else {
+      downvoteIds.push(req.id as string)
+      updatedPost = await prisma.post.update({
+        where: { id: postId },
+        data: { downvoteIds },
+      })
+    }
+
+    res.status(200).json({
+      success: true,
+      post: updatedPost,
+    })
+  }
+)
+
+export {
+  createPost,
+  getPosts,
+  getUserPosts,
+  deletePost,
+  upvotePost,
+  downvotePost,
+}

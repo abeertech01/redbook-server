@@ -20,21 +20,23 @@ model User {
   messages       Message[]
   chats          Chat[]
   participantIds Chat[]    @relation("ChatParticipate")
+  // upvotedPosts   Post[]    @relation("Upvoting")
+  // downvotedPosts Post[]    @relation("Downvoting")
 
   @@map("users")
 }
 
 model Post {
-  id        String    @id @default(uuid())
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  title     String
-  content   String
-  upvote    Int       @default(0)
-  downvote  Int       @default(0)
-  authorId  String
-  author    User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  comments  Comment[]
+  id          String    @id @default(uuid())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  title       String
+  content     String
+  upvoteIds   String[]
+  downvoteIds String[]
+  authorId    String
+  author      User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  comments    Comment[]
 
   @@map("posts")
 }
