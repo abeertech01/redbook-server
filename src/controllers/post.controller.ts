@@ -49,6 +49,23 @@ const getPosts = TryCatch(
   }
 )
 
+const getUserPosts = TryCatch(
+  async (req: IRequest, res: Response, next: NextFunction) => {
+    const posts = await prisma.post.findMany({
+      where: { authorId: req.params.id as string },
+      orderBy: { createdAt: "desc" },
+      include: {
+        author: true,
+      },
+    })
+
+    res.status(200).json({
+      success: true,
+      posts,
+    })
+  }
+)
+
 const deletePost = TryCatch(
   async (req: IRequest, res: Response, next: NextFunction) => {
     const { id } = req.params
@@ -151,4 +168,11 @@ const downvotePost = TryCatch(
   }
 )
 
-export { createPost, getPosts, deletePost, upvotePost, downvotePost }
+export {
+  createPost,
+  getPosts,
+  getUserPosts,
+  deletePost,
+  upvotePost,
+  downvotePost,
+}
