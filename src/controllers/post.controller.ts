@@ -31,6 +31,17 @@ const getPosts = TryCatch(
       },
     })
 
+    if (req.query.authorId) {
+      const filteredPosts = posts.filter(
+        (post) => post.authorId === req.query.authorId
+      )
+
+      res.status(200).json({
+        success: true,
+        posts: filteredPosts,
+      })
+    }
+
     res.status(200).json({
       success: true,
       posts,
