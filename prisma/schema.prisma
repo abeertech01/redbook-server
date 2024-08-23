@@ -42,20 +42,20 @@ model Post {
 }
 
 model Comment {
-  id        String   @id @default(uuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  content   String
-  upvote    Int
-  downvote  Int
-  authorId  String
-  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  postId    String
-  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  id          String   @id @default(uuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  content     String
+  upvoteIds   String[]
+  downvoteIds String[]
+  authorId    String
+  author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  postId      String
+  post        Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
 
-  parentId String? // This field references the parent comment
-  parent   Comment?  @relation("CommentToComment", fields: [parentId], references: [id], onDelete: Cascade)
-  replies  Comment[] @relation("CommentToComment")
+  // parentId String? // This field references the parent comment
+  // parent   Comment?  @relation("CommentToComment", fields: [parentId], references: [id], onDelete: Cascade)
+  // replies  Comment[] @relation("CommentToComment")
 
   @@map("comments")
 }

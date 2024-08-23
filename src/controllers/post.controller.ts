@@ -2,6 +2,7 @@ import { NextFunction, Response } from "express"
 import { TryCatch } from "../middlewares/error"
 import { IRequest } from "../utils/types"
 import prisma from "../lib/prismadb"
+import { ErrorHandler } from "../utils/utility"
 
 const createPost = TryCatch(
   async (req: IRequest, res: Response, next: NextFunction) => {
@@ -62,6 +63,24 @@ const getUserPosts = TryCatch(
     res.status(200).json({
       success: true,
       posts,
+    })
+  }
+)
+
+const getPost = TryCatch(
+  async (req: IRequest, res: Response, next: NextFunction) => {
+    const { id } = req.params
+
+    const post = await prisma.post.findUnique({
+      where: { id },
+      include: {
+        author: true,
+      },
+    })
+
+    res.status(200).json({
+      success: true,
+      post,
     })
   }
 )
@@ -168,11 +187,40 @@ const downvotePost = TryCatch(
   }
 )
 
+const addComment = TryCatch(
+  async (req: IRequest, res: Response, next: NextFunction) => {
+    const { postId, content } = req.body
+
+    const record = await prisma.post.findUnique({
+      where: { id: postId },
+    })
+
+    if (!record) {
+      return next(new ErrorHandler("Post not found", 404))
+    }
+
+    const comment = await prisma.comment.create({
+      data: {
+        postId,
+        content,
+        authorId: req.id as string,
+      },
+    })
+
+    res.status(200).json({
+      success: true,
+      comment,
+    })
+  }
+)
+
 export {
   createPost,
   getPosts,
   getUserPosts,
+  getPost,
   deletePost,
   upvotePost,
   downvotePost,
+  addComment,
 }
