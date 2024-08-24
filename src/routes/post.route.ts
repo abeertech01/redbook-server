@@ -3,10 +3,12 @@ import {
   addComment,
   createPost,
   deletePost,
+  downvoteComment,
   downvotePost,
   getPost,
   getPosts,
   getUserPosts,
+  upvoteComment,
   upvotePost,
 } from "../controllers/post.controller"
 import { isAuthenticated } from "../middlewares/auth"
@@ -30,5 +32,9 @@ router.put("/upvote/:id", upvotePost)
 router.put("/downvote/:id", downvotePost)
 
 router.post("/add-comment", addComment)
+
+router.put("/comment/upvote/:id", upvoteComment)
+
+router.put("/comment/downvote/:id", downvoteComment)
 
 export default router

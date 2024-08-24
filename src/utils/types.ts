@@ -23,3 +23,28 @@ export interface SearchedUser {
 export interface IRequest extends Request {
   id?: string
 }
+
+export interface Post {
+  id: string
+  createdAt: Date
+  updatedAt: Date
+  title: string
+  content: string
+  upvoteIds: string[]
+  downvoteIds: string[]
+  authorId: string
+  comments?: Comment[]
+  author?: User
+}
+
+export interface Comment {
+  id: string
+  createdAt: Date
+  updatedAt: Date
+  content: string
+  upvoteIds: string[]
+  downvoteIds: string[]
+  authorId: string
+  author?: User
+  postId: string
+}

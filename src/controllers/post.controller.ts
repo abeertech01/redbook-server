@@ -1,8 +1,14 @@
 import { NextFunction, Response } from "express"
 import { TryCatch } from "../middlewares/error"
-import { IRequest } from "../utils/types"
+import { Comment, IRequest } from "../utils/types"
 import prisma from "../lib/prismadb"
 import { ErrorHandler } from "../utils/utility"
+import {
+  downvoteCommentHelper,
+  downvotePostHelper,
+  upvoteCommentHelper,
+  upvotePostHelper,
+} from "../lib/helpers"
 
 const createPost = TryCatch(
   async (req: IRequest, res: Response, next: NextFunction) => {
@@ -114,30 +120,7 @@ const upvotePost = TryCatch(
       where: { id: postId },
     })
 
-    const upvoteIds = [...(post?.upvoteIds as string[])]
-    const downvoteIds = [...(post?.downvoteIds as string[])]
-    let updatedPost: typeof post | undefined
-
-    if (downvoteIds.includes(req.id as string)) {
-      downvoteIds.splice(downvoteIds.indexOf(req.id as string), 1)
-      upvoteIds.push(req.id as string)
-      updatedPost = await prisma.post.update({
-        where: { id: postId },
-        data: { upvoteIds, downvoteIds },
-      })
-    } else if (upvoteIds.includes(req.id as string)) {
-      upvoteIds.splice(upvoteIds.indexOf(req.id as string), 1)
-      updatedPost = await prisma.post.update({
-        where: { id: postId },
-        data: { upvoteIds },
-      })
-    } else {
-      upvoteIds.push(req.id as string)
-      updatedPost = await prisma.post.update({
-        where: { id: postId },
-        data: { upvoteIds },
-      })
-    }
+    const updatedPost = upvotePostHelper(post!, prisma, req.id!, postId)
 
     res.status(200).json({
       success: true,
@@ -155,30 +138,7 @@ const downvotePost = TryCatch(
       where: { id: postId },
     })
 
-    const upvoteIds = [...(post?.upvoteIds as string[])]
-    const downvoteIds = [...(post?.downvoteIds as string[])]
-    let updatedPost: typeof post | undefined
-
-    if (upvoteIds.includes(req.id as string)) {
-      upvoteIds.splice(downvoteIds.indexOf(req.id as string), 1)
-      downvoteIds.push(req.id as string)
-      updatedPost = await prisma.post.update({
-        where: { id: postId },
-        data: { upvoteIds, downvoteIds },
-      })
-    } else if (downvoteIds.includes(req.id as string)) {
-      downvoteIds.splice(downvoteIds.indexOf(req.id as string), 1)
-      updatedPost = await prisma.post.update({
-        where: { id: postId },
-        data: { downvoteIds },
-      })
-    } else {
-      downvoteIds.push(req.id as string)
-      updatedPost = await prisma.post.update({
-        where: { id: postId },
-        data: { downvoteIds },
-      })
-    }
+    const updatedPost = await downvotePostHelper(post!, prisma, req.id!, postId)
 
     res.status(200).json({
       success: true,
@@ -214,6 +174,60 @@ const addComment = TryCatch(
   }
 )
 
+const upvoteComment = TryCatch(
+  async (req: IRequest, res: Response, next: NextFunction) => {
+    const { id: commentId } = req.params
+
+    // get the comment by matching the commentId
+    const comment = await prisma.comment.findUnique({
+      where: { id: commentId },
+    })
+
+    if (!comment) {
+      return next(new ErrorHandler("Comment not found", 404))
+    }
+
+    const updatedComment = await upvoteCommentHelper(
+      comment!,
+      req.id!,
+      prisma,
+      commentId
+    )
+
+    res.status(200).json({
+      success: true,
+      comment: updatedComment,
+    })
+  }
+)
+
+const downvoteComment = TryCatch(
+  async (req: IRequest, res: Response, next: NextFunction) => {
+    const { id: commentId } = req.params
+
+    // get the comment by matching the commentId
+    const comment = await prisma.comment.findUnique({
+      where: { id: commentId },
+    })
+
+    if (!comment) {
+      return next(new ErrorHandler("Comment not found", 404))
+    }
+
+    const updatedComment = downvoteCommentHelper(
+      comment!,
+      req.id!,
+      prisma,
+      commentId
+    )
+
+    res.status(200).json({
+      success: true,
+      comment: updatedComment,
+    })
+  }
+)
+
 export {
   createPost,
   getPosts,
@@ -223,4 +237,6 @@ export {
   upvotePost,
   downvotePost,
   addComment,
+  upvoteComment,
+  downvoteComment,
 }
