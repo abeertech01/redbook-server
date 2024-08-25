@@ -147,6 +147,31 @@ const downvotePost = TryCatch(
   }
 )
 
+const getPostComments = TryCatch(
+  async (req: IRequest, res: Response, next: NextFunction) => {
+    const { id: postId } = req.params
+
+    const postRecord = await prisma.post.findUnique({
+      where: { id: postId },
+    })
+
+    if (!postRecord) return next(new ErrorHandler("Post not found", 404))
+
+    const comments = await prisma.comment.findMany({
+      where: { postId: postId as string },
+      orderBy: { createdAt: "desc" },
+      include: {
+        author: true,
+      },
+    })
+
+    res.status(200).json({
+      success: true,
+      comments,
+    })
+  }
+)
+
 const addComment = TryCatch(
   async (req: IRequest, res: Response, next: NextFunction) => {
     const { postId, content } = req.body
@@ -236,6 +261,7 @@ export {
   deletePost,
   upvotePost,
   downvotePost,
+  getPostComments,
   addComment,
   upvoteComment,
   downvoteComment,

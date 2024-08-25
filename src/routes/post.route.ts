@@ -6,6 +6,7 @@ import {
   downvoteComment,
   downvotePost,
   getPost,
+  getPostComments,
   getPosts,
   getUserPosts,
   upvoteComment,
@@ -30,6 +31,8 @@ router.delete("/delete-post/:id", deletePost)
 router.put("/upvote/:id", upvotePost)
 
 router.put("/downvote/:id", downvotePost)
+
+router.get("/post-comments/:id", getPostComments)
 
 router.post("/add-comment", addComment)
 
