@@ -35,6 +35,7 @@ const getPosts = TryCatch(
       orderBy: { createdAt: "desc" },
       include: {
         author: true,
+        comments: true,
       },
     })
 
@@ -81,6 +82,7 @@ const getPost = TryCatch(
       where: { id },
       include: {
         author: true,
+        comments: true,
       },
     })
 
@@ -93,15 +95,16 @@ const getPost = TryCatch(
 
 const deletePost = TryCatch(
   async (req: IRequest, res: Response, next: NextFunction) => {
-    const { id } = req.params
+    const { id: postId } = req.params
 
-    /**
-     * FIXME: Later
-     * if I get post id and authorId by req.body, I will be able to create an error where it will give a message which is 'You are not allowed to remove this post'
-     */
+    const record = await prisma.post.findUnique({
+      where: { id: postId },
+    })
+
+    if (!record) return next(new ErrorHandler("Post not found", 404))
 
     const post = await prisma.post.delete({
-      where: { authorId: req.id as string, id },
+      where: { authorId: req.id, id: postId },
     })
 
     res.status(200).json({
@@ -253,6 +256,27 @@ const downvoteComment = TryCatch(
   }
 )
 
+const deleteComment = TryCatch(
+  async (req: IRequest, res: Response, next: NextFunction) => {
+    const { id: commentId } = req.params
+
+    const record = await prisma.comment.findUnique({
+      where: { id: commentId },
+    })
+
+    if (!record) return next(new ErrorHandler("Comment not found", 404))
+
+    const comment = await prisma.comment.delete({
+      where: { authorId: req.id, id: commentId },
+    })
+
+    res.status(200).json({
+      success: true,
+      comment,
+    })
+  }
+)
+
 export {
   createPost,
   getPosts,
@@ -265,4 +289,5 @@ export {
   addComment,
   upvoteComment,
   downvoteComment,
+  deleteComment,
 }

@@ -2,6 +2,7 @@ import express from "express"
 import {
   addComment,
   createPost,
+  deleteComment,
   deletePost,
   downvoteComment,
   downvotePost,
@@ -39,5 +40,7 @@ router.post("/add-comment", addComment)
 router.put("/comment/upvote/:id", upvoteComment)
 
 router.put("/comment/downvote/:id", downvoteComment)
+
+router.delete("/delete-comment/:id", deleteComment)
 
 export default router
